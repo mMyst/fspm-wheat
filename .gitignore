@@ -1,0 +1,13 @@
+# Ignore all simulation generated folders
+*outputs*/
+*postprocessing*/
+*graphs*/
+
+# Dossiers temporaires Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+
+*FSPM_Wheat.egg-info*/
+
