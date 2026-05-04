@@ -86,7 +86,7 @@ class ElongWheatFacade(object):
 
         self.seed_is_moistened = True
 
-    def run(self, Tair, Tsoil, Zsowing=0.025, option_static=False, optimal_growth_option=False, update_shared_df=None):
+    def run(self, Tair, Tsoil, tillers_replications = None, Zsowing=0.025, option_static=False, optimal_growth_option=False, update_shared_df=None):
         """
         Run the model and update the MTG and the dataframes shared between all models.
 
@@ -99,7 +99,7 @@ class ElongWheatFacade(object):
         """
         self._initialize_model()
         if self.seed_is_moistened:
-            self._simulation.run(Tair, Tsoil, Zsowing, optimal_growth_option)
+            self._simulation.run(Tair, Tsoil, tillers_replications,Zsowing, optimal_growth_option)
             self._update_shared_MTG(self._simulation.outputs['hiddenzone'], self._simulation.outputs['elements'], self._simulation.outputs['axes'], option_static)
 
             if update_shared_df or (update_shared_df is None and self._update_shared_df):
