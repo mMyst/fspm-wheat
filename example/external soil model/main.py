@@ -81,7 +81,7 @@ def main(simulation_length, forced_start_time=0, run_simu=True, run_postprocessi
     :param dict [str, float] tillers_replications: a dictionary with tiller id as key, and weight of replication as value.
     :param bool heterogeneous_canopy: Whether to create a duplicated heterogeneous canopy from the initial mtg.
     :param bool external_soil_model: whether an external soil model is coupled to cnwheat. If True, cnwheat will skip calculations made in soil and uptake N by roots
-    :param dict [int, float] or [str, float] N_fertilizations: a dictionary for N fertilisation regime {date: N_input}, with date in hour and N_input in µmol N nitrates
+    :param dict [int, float] or [str, float] N_fertilizations: a dictionary for N fertilisation regime {date: N_input}, with date in hour and N_input in ï¿½mol N nitrates
                                                or {'constant_Conc_Nitrates': val} for constant nitrates concentrations
     :param dict [int, int] PLANT_DENSITY: a dict with plant density per plant id (temporary used to account for different cultivars if needed) ; plant m-2
     :param dict update_parameters_all_models: a dict to update model parameters
@@ -273,7 +273,7 @@ def main(simulation_length, forced_start_time=0, run_simu=True, run_postprocessi
 
     # read adelwheat inputs at t0
     adel_wheat = AdelDyn(seed=1, scene_unit='m', leaves=echap_leaves(xy_model='Soissons_byleafclass'))
-    g = adel_wheat.load(directory=INPUTS_DIRPATH)
+    g = adel_wheat.load(dir=INPUTS_DIRPATH)
 
     # ---------------------------------------------
     # ----- CONFIGURATION OF THE FACADES -------
@@ -423,7 +423,7 @@ def main(simulation_length, forced_start_time=0, run_simu=True, run_postprocessi
         [i for i in cnwheat_facade.cnwheat_converter.ELEMENTS_VARIABLES if i in inputs_dataframes[ELEMENTS_INITIAL_STATE_FILENAME].columns]].copy()
 
     cnwheat_soils_initial_state = inputs_dataframes[SOILS_INITIAL_STATE_FILENAME][
-    [i for i in cnwheat_facade.cnwheat_converter.SOILS_VARIABLES if i in inputs_dataframes[SOILS_INITIAL_STATE_FILENAME].columns]].copy()
+        [i for i in cnwheat_facade.cnwheat_converter.SOILS_VARIABLES if i in inputs_dataframes[SOILS_INITIAL_STATE_FILENAME].columns]].copy()
 
     # Update parameters if specified
     if update_parameters_all_models and 'cnwheat' in update_parameters_all_models:
@@ -877,7 +877,7 @@ def main(simulation_length, forced_start_time=0, run_simu=True, run_postprocessi
         ax1.plot(list(rer_param.keys()), list(rer_param.values()), marker='*', color='k', linestyle='', label="Model parameters")
 
         # Formatting
-        ax1.set_ylabel(u'Relative Elongation Rate at 12°C (s$^{-1}$)')
+        ax1.set_ylabel(u'Relative Elongation Rate at 12ï¿½C (s$^{-1}$)')
         ax1.legend(prop={'size': 12}, bbox_to_anchor=(0.05, .6, 0.9, .5), loc='upper center', ncol=3, mode="expand", borderaxespad=0.)
         ax1.legend(loc='upper left')
         ax1.set_xlabel('Phytomer rank')
@@ -919,7 +919,7 @@ def main(simulation_length, forced_start_time=0, run_simu=True, run_postprocessi
 
         ax.set_xlabel('Days')
         ax2.set_ylim([0, 200])
-        ax.set_ylabel(u'C (µmol C.day$^{-1}$ )')
+        ax.set_ylabel(u'C (ï¿½mol C.day$^{-1}$ )')
         ax2.set_ylabel(u'Ratio (%)')
         ax.set_title('C allocation to roots')
         plt.savefig(os.path.join(GRAPHS_DIRPATH, 'C_allocation.PNG'), dpi=200, format='PNG', bbox_inches='tight')
