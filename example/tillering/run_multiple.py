@@ -52,22 +52,22 @@ def run_single_simulation(params):
 
 if __name__ == '__main__':
     # 1. Définition des plages de valeurs à tester
-    gaic_values = [0.05, 0.1, 0.15]
-    density_values = [150, 250, 350]
-    coef_delay_values = [0.0, 1.0, 2.0]   
-    coef_buffer_values = [0.05, 0.1] 
+    gaic_values = [0.1, 0.2]
+    density_values = [150, 250, 500, 1000]
+    coef_delay_values = [3.0,4.0]   
+    coef_buffer_values = [1.0] 
 
     # 2. Génération de toutes les combinaisons
     tasks = list(itertools.product(gaic_values, density_values, coef_delay_values, coef_buffer_values))
 
-    # 3. Configuration matérielle (14 cœurs disponibles, on en garde 2 pour le système)
-    MAX_CORES = 12 
+    # 3. Configuration matérielle (20 cœurs disponibles, on en garde 2 pour le système)
+    MAX_CORES = os.cpu_count() -2
     num_cpus = min(MAX_CORES, len(tasks))
     
     print("====================================================")
     print(f"Préparation de {len(tasks)} simulations FSPM.")
     print(f"Toutes les sorties iront dans le dossier racine : 'parallel_tests'")
-    print(f"Lancement du pool sur {num_cpus} cœurs (sur tes 14 dispo).")
+    print(f"Lancement du pool sur {num_cpus} cœurs (sur {os.cpu_count()} dispo).")
     print("====================================================\n")
 
     start_time = time.time()

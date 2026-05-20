@@ -124,6 +124,9 @@ def main(simulation_length, forced_start_time=0, run_simu=True, run_postprocessi
     if PLANT_DENSITY is None:
         PLANT_DENSITY = {1: 250.}
 
+    SIM_KEY = f'gaic_{GAIc}_dens_{PLANT_DENSITY[1]}_delay_{COEF_DELAY_TIL}_buf_{COEF_BUFFER_TIL}' 
+                                      
+
     # precision of floats used to write and format the output CSV files
     OUTPUTS_PRECISION = 8
 
@@ -494,13 +497,11 @@ def main(simulation_length, forced_start_time=0, run_simu=True, run_postprocessi
                             
                             #test if a tiller emerges for this hiddenzone. 
                             #the point of the buffer is to give more opportunities for the tiller to emerge
-                            ms_vid = next(vid for vid, label in g.property('label').items() if label == 'MS') #get MS vid id 
                             
                             tillers_replications = elongwheat_tillering.update_tiller_replications(
                                 g=g,
-                                ms_vid=ms_vid,
                                 adel_wheat=adel_wheat,
-                                plant_density=PLANT_DENSITY[1],
+                                plant_density = PLANT_DENSITY[1],
                                 tillers_replications=tillers_replications,
                                 gaic=GAIc,
                                 coef_delay_til=COEF_DELAY_TIL,
@@ -517,7 +518,8 @@ def main(simulation_length, forced_start_time=0, run_simu=True, run_postprocessi
                                 growthwheat_facade_.run()
 
                                 for t_cnwheat in range(t_growthwheat, t_growthwheat + GROWTHWHEAT_TIMESTEP, CNWHEAT_TIMESTEP):
-                                    print('t cnwheat is {}'.format(t_cnwheat))
+                                    if t_cnwheat % 1 == 0:
+                                        print(f'{SIM_KEY} : t cnwheat is {t_cnwheat} / {SIMULATION_LENGTH}')
 
                                     # N fertilization if any
                                     if N_fertilizations is not None and len(N_fertilizations) > 0:
@@ -1071,4 +1073,4 @@ if __name__ == '__main__':
          option_static=False, tillers_replications={}, #{'T1': 0.5, 'T2': 0.5, 'T3': 0.5, 'T4': 0.5}
          heterogeneous_canopy=True, N_fertilizations={2949: 357143, 4029: 1000000},
          PLANT_DENSITY={1: 250}, METEO_FILENAME='meteo_Ljutovac2002_since_sowing_on_19981015.csv',
-         GAIc = 0.1, coef_delay_til=0, coef_buffer_til=0.1)
+         GAIc = 0.1, coef_delay_til=2, coef_buffer_til=1)
