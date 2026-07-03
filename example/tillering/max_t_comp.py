@@ -9,8 +9,10 @@ def plot_max_time_bars(base_dir="parallel_tests",
                        target_file="axes_postprocessing.csv", 
                        filter_buffer=1):
     """
-    Parcourt les dossiers de simulation, extrait le 't' maximum atteint,
-    et trace un graphique en barres (Axe X = Densité, Axe Y = t_max).
+    Parses multiple parallel simulation output folders to extract the maximum 
+    simulated time ('t_max') reached before termination. Generates a grid of 
+    bar plots visualizing simulation survival duration grouped by density, 
+    GAIc, and delay parameters.
     """
     
     search_pattern = os.path.join(base_dir, "postprocessing_*")

@@ -12,8 +12,9 @@ def plot_tiller_emergence_bars(base_dir="parallel_tests",
                                colonne_verification="mstruct", 
                                filter_buffer=1):
     """
-    Extrait le t minimum où le metamer 1 devient NUMÉRIQUE et > 0 pour chaque talle.
-    Crée une grille Lignes=GAIc, Colonnes=Delay, avec un diagramme en barres groupées par Densité.
+    Analyzes hiddenzone outputs to determine the earliest time step ('t_min') 
+    where the first metamer of each tiller emerges (i.e., when the target column > 0). 
+    Generates and saves a grid of grouped bar charts comparing tiller emergence times.
     """
     
     search_pattern = os.path.join(base_dir, "outputs_*")

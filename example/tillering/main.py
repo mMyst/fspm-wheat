@@ -63,7 +63,7 @@ def save_df_to_csv(df, outputs_filepath, precision):
 
 
 def main(simulation_length, forced_start_time=0, run_simu=True, run_postprocessing=True, generate_graphs=True, run_from_outputs=False, stored_times=None,
-         option_static=False, show_3Dplant=True, tillers_replications={}, heterogeneous_canopy=True,
+         option_static=False, show_3Dplant=True, tillers_replications={'T1': 0.5, 'T2': 0.5, 'T3': 0.5, 'T4': 0.5}, heterogeneous_canopy=True,
          N_fertilizations=None, PLANT_DENSITY=None, GAIc=0.1, coef_delay_til=2, coef_buffer_til=0.1,
          update_parameters_all_models=None,
          INPUTS_DIRPATH='inputs', METEO_FILENAME='meteo.csv', MANAGEMENT_FILENAME='management.csv',
@@ -1068,9 +1068,15 @@ def main(simulation_length, forced_start_time=0, run_simu=True, run_postprocessi
 
 
 if __name__ == '__main__':
-    main(4000, forced_start_time=800, run_simu=True, run_postprocessing=True, generate_graphs=True, run_from_outputs=False,
+    main(4000, forced_start_time=800,
+         run_simu=True, run_postprocessing=True, generate_graphs=True, run_from_outputs=False,
          show_3Dplant=False,
-         option_static=False, tillers_replications={}, #{'T1': 0.5, 'T2': 0.5, 'T3': 0.5, 'T4': 0.5}
+         option_static=False, 
+         tillers_replications={'T1': 0.5, 'T2': 0.5, 'T3': 0.5, 'T4': 0.5 , 'T5': 0.5, 'T6': 0.5, 'T7': 0.5, 'T8': 0.5},
          heterogeneous_canopy=True, N_fertilizations={2949: 357143, 4029: 1000000},
-         PLANT_DENSITY={1: 250}, METEO_FILENAME='meteo_Ljutovac2002_since_sowing_on_19981015.csv',
-         GAIc = 0.1, coef_delay_til=2, coef_buffer_til=1)
+         PLANT_DENSITY={1: 250}, 
+         METEO_FILENAME='meteo_Ljutovac2002_since_sowing_on_19981015.csv',
+         GAIc = 0.11, coef_delay_til=2, coef_buffer_til=0.5)
+
+        #with the current model design, tillers not present in tillers_replications won't emerge
+        #tiller N is the tiller at the aisle of leaf N (agronomic numbering)

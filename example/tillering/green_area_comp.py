@@ -4,17 +4,17 @@ import re
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def plot_green_area_with_axis_emergence(base_dir="parallel_tests", 
-                                        elem_file="elements_outputs.csv", 
-                                        hiddenzones_file="hiddenzones_outputs.csv",
-                                        filter_buffer=1):
+def plot_green_area_and_leaves(base_dir="parallel_tests", 
+                               elem_file="elements_postprocessing.csv", 
+                               axes_file="axes_postprocessing.csv",
+                               filter_buffer=0.5):
     """
-    Trace l'évolution de 'green_area' (depuis elements_outputs) et ajoute 
-    des lignes verticales pour l'apparition de chaque axe secondaire en 
-    cherchant t min où mstruct > 0 (depuis hiddenzones_outputs).
+    Visualizes the temporal evolution of the Green Area Index (GAI) and overlays 
+    leaf appearance events. Draws continuous GAI curves and adds vertical dashed lines 
+    and annotations whenever the total number of leaves increases in the simulation.
     """
     
-    search_pattern = os.path.join(base_dir, "outputs_*")
+    search_pattern = os.path.join(base_dir, "postprocessing_*")
     post_folders = glob.glob(search_pattern)
     
     if not post_folders:
@@ -33,29 +33,31 @@ def plot_green_area_with_axis_emergence(base_dir="parallel_tests",
         if buf != filter_buffer: continue
 
         path_elem = os.path.join(folder, elem_file)
-        path_hz = os.path.join(folder, hiddenzones_file)
+        path_axes = os.path.join(folder, axes_file)
 
-        if os.path.exists(path_elem) and os.path.exists(path_hz):
+        if os.path.exists(path_elem) and os.path.exists(path_axes):
             try:
-                # 1. Somme de green_area par pas de temps (t)
                 df_elem = pd.read_csv(path_elem)
-                df_summed = df_elem.groupby('t')['green_area'].sum().reset_index()
+                df_sum_elem = df_elem.groupby('t')['green_area'].sum().reset_index()
+                df_sum_elem['gai'] = df_sum_elem['green_area'] * density
 
-                # 2. Identification de l'apparition de CHAQUE axe secondaire via mstruct
-                df_hz = pd.read_csv(path_hz)
+                df_axes = pd.read_csv(path_axes)
+                df_sum_axes = df_axes.groupby('t')['nb_leaves'].sum().reset_index().sort_values('t')
                 
-                if 'axis' in df_hz.columns and 'mstruct' in df_hz.columns:
-                    # Filtre : Axes non-MS ET masse structurelle non nulle (> 0)
-                    non_ms_active = df_hz[(df_hz['axis'] != 'MS') & (df_hz['mstruct'] > 0) & (df_hz['metamer'] == 1)]
-                    t_emergences = non_ms_active.groupby('axis')['t'].min().tolist() if not non_ms_active.empty else []
-                else:
-                    print(f"⚠️ Colonne 'axis' ou 'mstruct' introuvable dans {folder_name}/{hiddenzones_file}")
-                    t_emergences = []
+                # Identification des intervalles de nombre de feuilles
+                change_mask = df_sum_axes['nb_leaves'].diff() != 0
+                change_mask.iloc[0] = True
+                df_changes = df_sum_axes[change_mask].copy()
+                t_max = df_sum_axes['t'].max()
+                intervals = []
+                for i in range(len(df_changes)):
+                    t_start, val = df_changes.iloc[i]['t'], df_changes.iloc[i]['nb_leaves']
+                    t_end = df_changes.iloc[i+1]['t'] if i+1 < len(df_changes) else t_max
+                    if t_end > t_start:
+                        intervals.append({'start': t_start, 'end': t_end, 'val': val})
 
-                all_data.append({
-                    'GAIc': gaic, 'Density': density, 'Delay': delay,
-                    't_emergences': t_emergences, 'data': df_summed
-                })
+                all_data.append({'GAIc': gaic, 'Density': density, 'Delay': delay,
+                                 'elem_data': df_sum_elem, 'intervals': intervals})
             except Exception as e:
                 print(f"⚠️ Erreur dans {folder_name}: {e}")
 
@@ -71,36 +73,56 @@ def plot_green_area_with_axis_emergence(base_dir="parallel_tests",
     color_map = {d: colors[i % len(colors)] for i, d in enumerate(sorted(master_df['Density'].unique()))}
 
     fig, axes = plt.subplots(len(unique_gaic), len(unique_delays), 
-                             figsize=(15, 10), sharex=True, sharey=True, squeeze=False)
+                             figsize=(16, 12), sharex=True, sharey=True, squeeze=False)
+
+    unique_densities = sorted(master_df['Density'].unique())
 
     for r, gaic in enumerate(unique_gaic):
         for c, delay in enumerate(unique_delays):
             ax = axes[r, c]
+
+            # Ligne horizontale pour le seuil GAIc
+            ax.axhline(y=gaic, color='black', linestyle=':', linewidth=1.2, alpha=0.6,
+                       label="GAIc Threshold" if (r == 0 and c == 0) else "")
+
             subset = master_df[(master_df['GAIc'] == gaic) & (master_df['Delay'] == delay)]
             
             for _, row in subset.iterrows():
-                # Courbe de surface verte
-                line, = ax.plot(row['data']['t'], row['data']['green_area'], 
-                                color=color_map[row['Density']], label=f"Dens: {row['Density']}")
+                density = row['Density']
+                color = color_map[density]
+                # Courbe GAI (ligne pleine)
+                ax.plot(row['elem_data']['t'], row['elem_data']['gai'], 
+                        color=color, label=f"{density}")
                 
-                # Ligne verticale pour l'apparition de CHAQUE axe
-                for t_emerg in row['t_emergences']:
-                    ax.axvline(x=t_emerg, color=line.get_color(), 
-                               linestyle='--', alpha=0.6, linewidth=1.2)
+                # Apparition des feuilles (lignes et texte)
+                y_text = 0.98 - (unique_densities.index(density) * 0.035)
+                for inter in row['intervals']:
+                # Always draw vertical lines for leaf appearance
+                    if inter['start'] > row['elem_data']['t'].min():
+                        ax.axvline(x=inter['start'], color=color, linestyle='--', alpha=0.3, linewidth=0.8)
 
-            ax.set_title(f"GAIc {gaic} | Delay {delay}")
+                # Skip displaying text labels if GAI in this zone is already above GAIc threshold
+                    zone_gai = row['elem_data'][(row['elem_data']['t'] >= inter['start']) & 
+                                            (row['elem_data']['t'] <= inter['end'])]['gai']
+                    if not zone_gai.empty and zone_gai.max() > gaic:
+                        continue
+
+                    # Combined label: Number of leaves and Tiller index (TN = nb_leaves - (1 + delay))
+                    n_tiller = int(inter['val'] - (1 + delay))
+                    ax.text((inter['start'] + inter['end'])/2, y_text, f"F{int(inter['val'])} T{n_tiller}",
+                            color=color, transform=ax.get_xaxis_transform(),
+                            ha='center', va='top', fontsize=6.5, alpha=0.8)
+
+            ax.set_title(f"GAIc {gaic} | Delay {delay}", fontweight='bold')
             if r == len(unique_gaic)-1: ax.set_xlabel("Temps (t)")
-            if c == 0: ax.set_ylabel("Somme Green Area")
+            if c == 0: ax.set_ylabel("GAI (Lines) | Leaf Appearance (Vlines)")
             
-            # Afficher la légende uniquement s'il y a des tracés
-            if not subset.empty:
-                handles, labels = ax.get_legend_handles_labels()
-                by_label = dict(zip(labels, handles))
-                ax.legend(by_label.values(), by_label.keys())
+            if r == 0 and c == 0:
+                ax.legend(loc='upper left', fontsize='small')
 
     plt.tight_layout()
-    plt.savefig("green_area_with_emergence.png", dpi=300)
+    plt.savefig("green_area_and_leaves.png", dpi=300)
     plt.show()
 
 if __name__ == "__main__":
-    plot_green_area_with_axis_emergence()
+    plot_green_area_and_leaves("darwinkel")

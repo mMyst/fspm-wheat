@@ -12,8 +12,9 @@ def plot_custom_grid_mpl(base_dir="parallel_tests",
                          filter_axis="MS", 
                          filter_plant=1):
     """
-    Crée une matrice de graphiques (Lignes = GAIc, Colonnes = Delay),
-    filtre sur Buffer = 0.1, et colore les courbes par Densité.
+    Compiles time-series data for a specified target variable (e.g., sum_dry_mass_shoot) 
+    from multiple simulation outputs. Creates and saves a grid of line plots categorizing 
+    the temporal evolution by GAIc and delay parameters, and colored by plant density.
     """
     
     search_pattern = os.path.join(base_dir, "postprocessing_*")
@@ -72,10 +73,10 @@ def plot_custom_grid_mpl(base_dir="parallel_tests",
     master_df = master_df[master_df['Buffer'] == 1]
     
     if master_df.empty:
-        print("❌ Aucune donnée restante après avoir filtré sur Buffer = 0.1.")
+        print("❌ Aucune donnée restante après avoir filtré sur Buffer = 1.")
         return
         
-    print(f"✅ Données compilées ({len(master_df)} lignes pour Buffer=0.1). Création de la grille...")
+    print(f"✅ Données compilées ({len(master_df)} lignes pour Buffer= 1). Création de la grille...")
 
     # 3. IDENTIFICATION DES AXES DE LA GRILLE
     unique_gaic = sorted(master_df['GAIc'].unique())       # Lignes
@@ -145,7 +146,7 @@ def plot_custom_grid_mpl(base_dir="parallel_tests",
 if __name__ == "__main__":
     
     FICHIER_CIBLE = "axes_postprocessing.csv"  
-    COLONNE_CIBLE = "sum_dry_mass_shoot"       #"Total_Photosynthesis"#
+    COLONNE_CIBLE = "nb_leaves"       #"Total_Photosynthesis"#
     AXE_X = "t"                                
     
     plot_custom_grid_mpl(

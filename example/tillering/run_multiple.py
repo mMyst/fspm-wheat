@@ -6,8 +6,9 @@ import main as fspm_main
 
 def run_single_simulation(params):
     """
-    Fonction worker pour exécuter une seule instance de la simulation.
-    params est un tuple : (gaic, density, coef_delay, coef_buffer)
+    Worker function for multiprocessing. Configures unique output directories and 
+    executes a single FSPM simulation instance using a specific combination of 
+    GAIc, density, delay, and buffer parameters provided via a tuple.
     """
     gaic, density, coef_delay, coef_buffer = params
     
@@ -52,9 +53,9 @@ def run_single_simulation(params):
 
 if __name__ == '__main__':
     # 1. Définition des plages de valeurs à tester
-    gaic_values = [0.1, 0.2]
+    gaic_values = [0.1, 0.25]
     density_values = [150, 250, 500, 1000]
-    coef_delay_values = [3.0,4.0]   
+    coef_delay_values = [2.0]   
     coef_buffer_values = [1.0] 
 
     # 2. Génération de toutes les combinaisons
