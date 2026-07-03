@@ -1,0 +1,4 @@
+plant,axis,organ,sucrose,amino_acids,nitrates,structure,starch,proteins,mstruct,Nstruct,cytokinins,senesced_mstruct,moistening
+1,MS,phloem,0.33,0.02,NA,NA,NA,NA,NA,NA,NA,NA,NA
+1,MS,roots,0.2,0.012,0.01,NA,NA,NA,8.92E-05,4.46E-07,0.02,0,NA
+1,MS,endosperm,NA,NA,NA,NA,1300,56,6.11E-03,NA,NA,NA,0
